@@ -251,18 +251,22 @@ class UdfStringUtils
           params:      "room varchar(max)",
           return_type: "integer",
           body:        %~
-            adults = 0
-            for r in room.split('|'):
-              ch = r.split(':')
-              adults += int(ch[0])
+            if not room:
+              return None
+            else:
+              adults = 0
+              for r in room.split('|'):
+                ch = r.split(':')
+                adults += int(ch[0])
 
-            return adults
+              return adults
           ~,
           tests:       [
                            {query: "select ?('1|2')", expect: 3 , example: true},
                            {query: "select ?('2')", expect: 2, example: true},
                            {query: "select ?('2:0,0')", expect: 2, example: true},
                            {query: "select ?('2:0|1:2,6')", expect: 3, example: true},
+                           {query: "select ?('')", expect: 0, example: true},
                        ]
       }, {
           type:        :function,
@@ -271,13 +275,16 @@ class UdfStringUtils
           params:      "room varchar(max)",
           return_type: "integer",
           body:        %~
-            children = 0
-            for r in room.split('|'):
-              ch = r.split(':')
-              if len(ch) > 1:
-                children += len(ch[-1].split(','))
+            if not room:
+              return None
+            else:
+              children = 0
+              for r in room.split('|'):
+                ch = r.split(':')
+                if len(ch) > 1:
+                  children += len(ch[-1].split(','))
 
-            return children
+              return children
           ~,
           tests:       [
                            {query: "select ?('1|2')", expect: 0 , example: true},
