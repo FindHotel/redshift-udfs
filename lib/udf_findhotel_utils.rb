@@ -21,11 +21,11 @@ class UdfFindhotelUtils
 
               if component.lower() == 'adults':
                 return adults
-              else component.lower() == 'children':
+              elif component.lower() == 'children':
                 return children
-              else component.lower() == 'rooms':
+              elif component.lower() == 'rooms':
                 return len(rooms)
-              else
+              else:
                 return None
 
           ~,
@@ -43,7 +43,7 @@ class UdfFindhotelUtils
                            {query: "select ?('rooms', '2|1:12')", expect: 2, example: true},
                            {query: "select ?('ROOMS', '2:0|1:2,6')", expect: 2, example: true},
                            {query: "select ?('rooms', '2:0|1:2,6|2')", expect: 3, example: true},
-                           {query: "select ?('roomz', '2:0|1:2,6|2')", expect: None, example: true},
+                           {query: "select ?('roomz', '2:0|1:2,6|2')", expect: nil, example: true},
                        ]
       }
     ]
