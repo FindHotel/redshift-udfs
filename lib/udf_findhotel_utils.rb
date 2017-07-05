@@ -10,22 +10,25 @@ class UdfFindhotelUtils
             if not room:
               return None
             else:
-              adults = 0
-              children = 0
-              rooms = room.split('|')
-              for r in rooms:
-                ch = r.split(':')
-                adults += int(ch[0])
-                if len(ch) > 1:
-                  children += len(ch[-1].split(','))
+              try:
+                adults = 0
+                children = 0
+                rooms = room.split('|')
+                for r in rooms:
+                  ch = r.split(':')
+                  adults += int(ch[0])
+                  if len(ch) > 1:
+                    children += len(ch[-1].split(','))
 
-              if component.lower() == 'adults':
-                return adults
-              elif component.lower() == 'children':
-                return children
-              elif component.lower() == 'rooms':
-                return len(rooms)
-              else:
+                if component.lower() == 'adults':
+                  return adults
+                elif component.lower() == 'children':
+                  return children
+                elif component.lower() == 'rooms':
+                  return len(rooms)
+                else:
+                  return None
+              except:
                 return None
 
           ~,
