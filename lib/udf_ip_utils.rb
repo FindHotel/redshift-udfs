@@ -14,6 +14,8 @@ class UdfIpUtils
                 res = struct.unpack("!I", socket.inet_aton(ip_address))[0]
             except:
                 res = 0
+            if not res:
+                res = 0
             return res
 
           ~,
