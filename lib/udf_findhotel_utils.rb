@@ -7,6 +7,10 @@ class UdfFindhotelUtils
           params:      "component varchar(max), room varchar(max)",
           return_type: "integer",
           body:        %~
+
+            import logging
+            logger = logging.getLogger('parse_room_description')
+
             if not room:
               return None
             else:
@@ -28,7 +32,8 @@ class UdfFindhotelUtils
                   return len(rooms)
                 else:
                   return None
-              except:
+              except (ValueError, IndexError) as e:
+                logger.error("Error: " + str(e) + " - Invalid room query " + str(room))
                 return None
 
           ~,
