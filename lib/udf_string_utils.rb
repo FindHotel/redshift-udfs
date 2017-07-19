@@ -244,6 +244,20 @@ class UdfStringUtils
                            {query: "select ?(1, 3, 1, ',')", expect: "1,2" , example: true},
                            {query: "select ?(1, 5, 2, '|')", expect: "1|3", example: true},
                        ]
+      }, {
+          type:        :function,
+          name:        :uuid4,
+          description: "Generates a random UUID",
+          params:      "",
+          return_type: "varchar(max)",
+          body:        %~
+            import uuid
+            return str(uuid.uuid4())
+          ~,
+          tests:       [
+                           {query: "select ?()", expect: "1,2" , example: true},
+                           {query: "select ?()", expect: "1|3", example: true},
+                       ]
       }
     ]
 end
