@@ -84,6 +84,35 @@ class UdfFindhotelUtils
                            {query: "select ?(3, 2, 1, 'mobile', 'a', 'b', 's', 'x')", expect: '78172d9b2a0d90cbff6160632e68449c' , example: true},
                            {query: "select ?(1, 2, 3, 'mobile', 'b', 'a', 'h', 'y')", expect: '65db6fc8ffebab864baff57c4a90d5db' , example: true},
                        ]
+      },
+      {
+          type:        :function,
+          name:        :make_bing_click_batch_id,
+          description: "Returns a unique identifier for a batch of clicks reported by Bing.",
+          params:      "ad_group_id bigint, ad_id bigint, keyword varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "ad_group_id": ad_group_id,
+                "ad_id": ad_id,
+                "keyword": keyword,
+                "device_type": device_type,
+                "network": network,
+                "bid_match_type": bid_match_type}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True))
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?(1, 2, '3', 'mobile', 'a', 'b')", expect: '3e301133b2ab7a2906465840b8a7761e' , example: true},
+                           {query: "select ?(3, 2, '1', 'mobile', 'a', 'b')", expect: '06d3d49eccf6276a033ad97a166775d0' , example: true},
+                           {query: "select ?(1, 2, '3', 'mobile', 'b', 'a')", expect: '7aedf2639ae096c416fc4077e5768cda' , example: true},
+                       ]
       }
     ]
 end
