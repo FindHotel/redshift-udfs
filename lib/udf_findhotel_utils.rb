@@ -96,12 +96,12 @@ class UdfFindhotelUtils
             import json
 
             key = {
-                "ad_group_id": ad_group_id,
-                "ad_id": ad_id,
-                "keyword": keyword,
-                "device_type": device_type,
-                "network": network,
-                "bid_match_type": bid_match_type}
+                "adgid": ad_group_id,
+                "adid": ad_id,
+                "kwid": keyword,
+                "dv": device_type,
+                "nk": network,
+                "bmt": bid_match_type}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True))
@@ -109,9 +109,9 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?(1, 2, '3', 'mobile', 'a', 'b')", expect: '3e301133b2ab7a2906465840b8a7761e' , example: true},
-                           {query: "select ?(3, 2, '1', 'mobile', 'a', 'b')", expect: '06d3d49eccf6276a033ad97a166775d0' , example: true},
-                           {query: "select ?(1, 2, '3', 'mobile', 'b', 'a')", expect: '7aedf2639ae096c416fc4077e5768cda' , example: true},
+                           {query: "select ?(1, 2, '3', 'mobile', 'a', 'b')", expect: '00ff845734e8065f3e55bba787e81746' , example: true},
+                           {query: "select ?(3, 2, '1', 'mobile', 'a', 'b')", expect: 'a1d347c050a21b3650cbf075eacae960' , example: true},
+                           {query: "select ?(1, 2, '3', 'mobile', 'b', 'a')", expect: '638a22aaccf3c97dc7d5d4df47b1ee4a' , example: true},
                        ]
       }
     ]
