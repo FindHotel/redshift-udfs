@@ -75,7 +75,7 @@ class UdfFindhotelUtils
                 "slot": slot}
 
             m = hashlib.md5()
-            m.update(json.dumps(key, sort_keys=True))
+            m.update(json.dumps(key, sort_keys=True).encode())
             return m.hexdigest()
 
           ~,
@@ -104,7 +104,7 @@ class UdfFindhotelUtils
                 "bmt": bid_match_type}
 
             m = hashlib.md5()
-            m.update(json.dumps(key, sort_keys=True))
+            m.update(json.dumps(key, sort_keys=True).encode())
             return m.hexdigest()
 
           ~,
