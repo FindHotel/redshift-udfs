@@ -58,7 +58,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_adwords_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Adwords.",
-          params:      "ad_group_id bigint, ad_id bigint, criteria_id bigint, device varchar(max), ad_network_type1 varchar(max), ad_network_type2 varchar(max), click_type varchar(max), slot varchar(max)",
+          params:      "ad_group_id varchar(max), ad_id varchar(max), criteria_id varchar(max), device varchar(max), ad_network_type1 varchar(max), ad_network_type2 varchar(max), click_type varchar(max), slot varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -80,16 +80,16 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?(1, 2, 3, 'mobile', 'a', 'b', 's', 'x')", expect: 'd95633497fddd300103c07903b65533b' , example: true},
-                           {query: "select ?(3, 2, 1, 'mobile', 'a', 'b', 's', 'x')", expect: '78172d9b2a0d90cbff6160632e68449c' , example: true},
-                           {query: "select ?(1, 2, 3, 'mobile', 'b', 'a', 'h', 'y')", expect: '65db6fc8ffebab864baff57c4a90d5db' , example: true},
+                           {query: "select ?('1', '2', '3', 'mobile', 'a', 'b', 's', 'x')", expect: '6d62ff88938aacd26d2f30d4c1145033' , example: true},
+                           {query: "select ?('3', '2', '1', 'mobile', 'a', 'b', 's', 'x')", expect: 'c257ec3177dcf59cfd14742ffab6ae16' , example: true},
+                           {query: "select ?('1', '2', '3', 'mobile', 'b', 'a', 'h', 'y')", expect: '4f3e466c87b1093f4c4ecc0348a01d4f' , example: true},
                        ]
       },
       {
           type:        :function,
           name:        :make_bing_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Bing.",
-          params:      "ad_group_id bigint, ad_id bigint, keyword varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
+          params:      "ad_group_id varchar(max), ad_id varchar(max), keyword varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -109,9 +109,9 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?(1, 2, '3', 'mobile', 'a', 'b')", expect: '00ff845734e8065f3e55bba787e81746' , example: true},
-                           {query: "select ?(3, 2, '1', 'mobile', 'a', 'b')", expect: 'a1d347c050a21b3650cbf075eacae960' , example: true},
-                           {query: "select ?(1, 2, '3', 'mobile', 'b', 'a')", expect: '638a22aaccf3c97dc7d5d4df47b1ee4a' , example: true},
+                           {query: "select ?('1', '2', '3','mobile', 'a', 'b')", expect: 'fbf1f8275cf201ca0804a8cd12e5a3b0' , example: true},
+                           {query: "select ?('3', '2', '1','mobile', 'a', 'b')", expect: 'eea4461ae23eddf7443c06796018d961' , example: true},
+                           {query: "select ?('1', '2', '3','mobile', 'b', 'a')", expect: 'd4bde1fe00e48097038fbc0fe2d5be79' , example: true},
                        ]
       }
     ]
