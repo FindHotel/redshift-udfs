@@ -89,7 +89,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_bing_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Bing.",
-          params:      "ad_group_id varchar(max), ad_id varchar(max), keyword varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
+          params:      "ad_group_id varchar(max), ad_id varchar(max), keyword_id varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -98,7 +98,7 @@ class UdfFindhotelUtils
             key = {
                 "adgid": ad_group_id,
                 "adid": ad_id,
-                "kwid": keyword,
+                "kwid": keyword_id,
                 "dv": device_type,
                 "nk": network,
                 "bmt": bid_match_type}
@@ -112,6 +112,72 @@ class UdfFindhotelUtils
                            {query: "select ?('1', '2', '3','mobile', 'a', 'b')", expect: 'fbf1f8275cf201ca0804a8cd12e5a3b0' , example: true},
                            {query: "select ?('3', '2', '1','mobile', 'a', 'b')", expect: 'eea4461ae23eddf7443c06796018d961' , example: true},
                            {query: "select ?('1', '2', '3','mobile', 'b', 'a')", expect: 'd4bde1fe00e48097038fbc0fe2d5be79' , example: true},
+                       ]
+      },
+      {
+          type:        :function,
+          name:        :make_bing_click_batch_id_test,
+          description: "Returns a unique identifier for a batch of clicks reported by Bing.",
+          params:      "ad_group_id varchar(max), ad_id varchar(max), keyword_id varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "adgid": ad_group_id,
+                "adid": ad_id,
+                "kwid": keyword_id,
+                "dv": device_type,
+                "nk": network,
+                "bmt": bid_match_type}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True).encode())
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?('1', '2', '3','mobile', 'a', 'b')", expect: 'fbf1f8275cf201ca0804a8cd12e5a3b0' , example: true},
+                           {query: "select ?('3', '2', '1','mobile', 'a', 'b')", expect: 'eea4461ae23eddf7443c06796018d961' , example: true},
+                           {query: "select ?('1', '2', '3','mobile', 'b', 'a')", expect: 'd4bde1fe00e48097038fbc0fe2d5be79' , example: true},
+                       ]
+      },
+      {
+          type:        :function,
+          name:        :fix_bing_batch_key,
+          description: "Fix batch key for Bing source.",
+          params:      "click_batch_key_str varchar(max), url varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import json
+            from urlparse import urlparse, parse_qs
+
+            def _pick_last(qs):
+                for k, v in qs.items():
+                    if v:
+                        qs[k] = v[-1]
+                return qs
+
+            def get_label_value(label, *keys):
+                for key in keys:
+                    value = label.get(key)
+                    if value:
+                        return value
+
+            url = urlparse(url)
+            qs = _pick_last(parse_qs(url.query))
+            raw_label = qs.get("label") or self.qs.get("Label") or ""
+            label = _pick_last(parse_qs(raw_label))
+
+            click_batch_key = json.loads(click_batch_key_str)
+            click_batch_key["kwid"] = str(click_batch_key["kwid"])
+            click_batch_key["adgid"] = get_label_value(label, "adgid", "ad_group_id")
+
+            return json.dumps(click_batch_key, sort_keys=True).encode()
+
+          ~,
+          tests:       [
                        ]
       }
     ]
