@@ -95,12 +95,16 @@ class UdfFindhotelUtils
             import hashlib
             import json
 
+            actual_network = "Owned" if network in ("Bing and Yahoo! search", "AOL search") else \
+                             "Syndicated" if network=="Syndicated search partners" else \
+                             ""
+
             key = {
                 "adgid": ad_group_id,
                 "adid": ad_id,
                 "kwid": keyword_id,
                 "dv": device_type,
-                "nk": network,
+                "nk": actual_network,
                 "bmt": bid_match_type}
 
             m = hashlib.md5()
@@ -109,44 +113,15 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('1', '2', '3','mobile', 'a', 'b')", expect: 'fbf1f8275cf201ca0804a8cd12e5a3b0' , example: true},
-                           {query: "select ?('3', '2', '1','mobile', 'a', 'b')", expect: 'eea4461ae23eddf7443c06796018d961' , example: true},
-                           {query: "select ?('1', '2', '3','mobile', 'b', 'a')", expect: 'd4bde1fe00e48097038fbc0fe2d5be79' , example: true},
-                       ]
-      },
-      {
-          type:        :function,
-          name:        :make_bing_click_batch_id_test,
-          description: "Returns a unique identifier for a batch of clicks reported by Bing.",
-          params:      "ad_group_id varchar(max), ad_id varchar(max), keyword_id varchar(max), device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
-          return_type: "varchar(max)",
-          body:        %~
-            import hashlib
-            import json
-
-            key = {
-                "adgid": ad_group_id,
-                "adid": ad_id,
-                "kwid": keyword_id,
-                "dv": device_type,
-                "nk": network,
-                "bmt": bid_match_type}
-
-            m = hashlib.md5()
-            m.update(json.dumps(key, sort_keys=True).encode())
-            return m.hexdigest()
-
-          ~,
-          tests:       [
-                           {query: "select ?('1', '2', '3','mobile', 'a', 'b')", expect: 'fbf1f8275cf201ca0804a8cd12e5a3b0' , example: true},
-                           {query: "select ?('3', '2', '1','mobile', 'a', 'b')", expect: 'eea4461ae23eddf7443c06796018d961' , example: true},
-                           {query: "select ?('1', '2', '3','mobile', 'b', 'a')", expect: 'd4bde1fe00e48097038fbc0fe2d5be79' , example: true},
+                           {query: "select ?('1', '2', '3','mobile', 'Syndicated search partners', 'b')", expect: '0b593cae9b6b4e680e84f4afdc2edfb4' , example: true},
+                           {query: "select ?('3', '2', '1','mobile', 'AOL search', 'b')", expect: 'd70bc31fea1edaa832c7956f603ad564' , example: true},
+                           {query: "select ?('1', '2', '3','mobile', 'Bing and Yahoo! search', 'a')", expect: 'b41877b3b9a596b7492ef17ba9b2f826' , example: true},
                        ]
       },
       {
           type:        :function,
           name:        :fix_bing_batch_key,
-          description: "Fix batch key for Bing source.",
+          description: "Fix batch key for Bing source, converting all the ids to string and getting the right adgid.",
           params:      "click_batch_key_str varchar(max), url varchar(max)",
           return_type: "varchar(max)",
           body:        %~
@@ -167,7 +142,7 @@ class UdfFindhotelUtils
 
             url = urlparse(url)
             qs = _pick_last(parse_qs(url.query))
-            raw_label = qs.get("label") or self.qs.get("Label") or ""
+            raw_label = qs.get("label") or qs.get("Label") or ""
             label = _pick_last(parse_qs(raw_label))
 
             click_batch_key = json.loads(click_batch_key_str)
