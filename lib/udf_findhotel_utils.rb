@@ -58,7 +58,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_adwords_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Adwords.",
-          params:      "ad_group_id integer, ad_id integer, criteria_id integer, device varchar(max), ad_network_type1 varchar(max), ad_network_type2 varchar(max), click_type varchar(max), slot varchar(max)",
+          params:      "ad_group_id bigint, ad_id bigint, criteria_id bigint, device varchar(max), ad_network_type1 varchar(max), ad_network_type2 varchar(max), click_type varchar(max), slot varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -89,7 +89,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_bing_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Bing.",
-          params:      "ad_group_id integer, ad_id integer, keyword_id integer, device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
+          params:      "ad_group_id bigint, ad_id bigint, keyword_id bigint, device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
