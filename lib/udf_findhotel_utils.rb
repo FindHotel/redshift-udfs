@@ -152,6 +152,21 @@ class UdfFindhotelUtils
           ~,
           tests:       [
                        ]
+      },
+      {
+          type:        :function,
+          name:        :qs_to_json,
+          description: 'convert naked (without url) query string to json dict lifted from
+                        https://github.com/awslabs/amazon-redshift-udfs/blob/master/scalar-udfs/f_parse_url_query_string.sql',
+          params:      "url VARCHAR(MAX)",
+          return_type: "varchar(max)",
+          body:        %~
+            from urlparse import urlparse, parse_qsl
+            import json
+            return json.dumps(dict(parse_qsl(urlparse(url)[2])))
+          ~,
+          tests:       [{query: "select parse_label_query_string('utf8=%E2%9C%93&query=redshift')", expect: '{"utf8": "\u2713", "query": "redshift"}' , example: true},
+                        {query: "select parse_label_query_string('http://example.com?utf8=%E2%9C%93&query=redshift')", expect: '{}' , example: true}]
       }
     ]
 end
