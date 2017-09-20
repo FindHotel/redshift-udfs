@@ -157,7 +157,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :parse_label_query_string,
           description: 'convert naked (without url) query string to json dict lifted from
- https://github.com/awslabs/amazon-redshift-udfs/blob/master/scalar-udfs/f_parse_url_query_string.sql',
+                        https://github.com/awslabs/amazon-redshift-udfs/blob/master/scalar-udfs/f_parse_url_query_string.sql',
           params:      "url VARCHAR(MAX)",
           return_type: "varchar(max)",
           body:        %~
