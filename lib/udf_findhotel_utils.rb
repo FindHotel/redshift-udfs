@@ -163,10 +163,17 @@ class UdfFindhotelUtils
           body:        %~
             from urlparse import urlparse, parse_qsl
             import json
-            return json.dumps(dict(parse_qsl(urlparse(url)[2])))
+            res = {}
+            try:
+              res = json.dumps(dict(parse_qsl(urlparse(url)[2])))
+            except UnicodeDecodeError:
+              res = '{"errored": "bad utf8 char detected in string"}'
+            return res
           ~,
-          tests:       [{query: "select parse_label_query_string('utf8=%E2%9C%93&query=redshift')", expect: '{"utf8": "\u2713", "query": "redshift"}' , example: true},
-                        {query: "select parse_label_query_string('http://example.com?utf8=%E2%9C%93&query=redshift')", expect: '{}' , example: true}]
+          tests:       [{query: "select qs_to_json('utf8=%E2%9C%93&query=redshift')", expect: '{"utf8": "\u2713", "query": "redshift"}' , example: true},
+                        {query: "select qs_to_json('http://example.com?utf8=%E2%9C%93&query=redshift')", expect: '{}' , example: false},
+                        {query: "select qs_to_json('codetype%3D2%26clicktype%3DA%26hotelid%3D2718240%26campaignid%3D21933%26adgroupid%3D112633958%26targetcode%3D78%26headlineid%3D142%26desclayoutid%3D1%26desclayoutvn%3D1%26se=bing%26ad_group_id=7005466028%26ad_id=83975210798524%26device=c%26target_id=kwd-25771213359%26network=o%26match_type=b%26bid_match_type=bb%26msclkid=9665f0c1b8f51fdc3bbaa97e32a358c3%26search_query=spa%20%C3%83%C2%B6stersund%20fr%C3%83%C2%B6s%C3%83%C2%')", expect: '{"errored": "bad utf8 char detected in string"}' , example: false}
+                       ]
       }
     ]
 end
