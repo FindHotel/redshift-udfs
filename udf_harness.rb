@@ -18,6 +18,7 @@ class UdfHarness
         UdfStats::UDFS,
         UdfIpUtils::UDFS,
         UdfFindhotelUtils::UDFS,
+        UdfGeoUtils::UDFS,
     ].flatten.select { |u| only_udf.nil? or u[:name] == only_udf.to_sym }
   end
 
