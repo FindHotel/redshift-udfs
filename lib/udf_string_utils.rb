@@ -118,7 +118,7 @@ class UdfStringUtils
               pval = parse_qs(u.query)[param][0]
               if tojson:
                 try:
-                  return json.dumps(dict(parse_qsl(urlparse(pval)[2])))
+                  return json.dumps(dict(parse_qsl(urlparse(pval)[2])), sort_keys=True)
                 except UnicodeDecodeError:
                   return '{"errored": "bad utf8 char detected in string"}'
               else:
@@ -134,7 +134,7 @@ class UdfStringUtils
                            {query: "select ?(null, null, null)", expect: nil},
                            {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user')", expect: '&SE=ADW&ntw=g', example: true},
                            {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 'f')", expect: '&SE=ADW&ntw=g', example: true},
-                           {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 't')", expect: '{"ntw": "g", "SE": "ADW"}', example: true},
+                           {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 't')", expect: '{"SE": "ADW", "ntw": "g"}', example: true},
                        ]
       }, {
           type:        :function,
