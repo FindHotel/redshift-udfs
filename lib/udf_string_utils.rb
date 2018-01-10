@@ -105,15 +105,24 @@ class UdfStringUtils
           type:        :function,
           name:        :url_param,
           description: "Extract a parameter from a URL",
-          params:      "url varchar(max), param varchar(max)",
+          params:      "url varchar(max), param varchar(max), tojson boolean",
           return_type: "varchar(max)",
           body:        %~
-            import urlparse
+            import json
+            from urlparse import urlparse, parse_qs, parse_qsl
+
             if not url:
               return None
             try:
-              u = urlparse.urlparse(url)
-              return urlparse.parse_qs(u.query)[param][0]
+              u = urlparse(url)
+              pval = parse_qs(u.query)[param][0]
+              if tojson:
+                try:
+                  return json.dumps(dict(parse_qsl(urlparse(pval)[2])))
+                except UnicodeDecodeError:
+                  return '{"errored": "bad utf8 char detected in string"}'
+              else:
+                return pval
             except KeyError:
               return None
           ~,
@@ -122,6 +131,10 @@ class UdfStringUtils
                            {query: "select ?('https://gmail.com/mail.php?user=bob&account=work', 'user')", expect: 'bob', example: true},
                            {query: "select ?('bonk', 'bonk')", expect: nil},
                            {query: "select ?(null, null)", expect: nil},
+                           {query: "select ?(null, null, null)", expect: nil},
+                           {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user')", expect: '&SE=ADW&ntw=g', example: true},
+                           {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 'f')", expect: '&SE=ADW&ntw=g', example: true},
+                           {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 't')", expect: '{"ntw": "g", "SE": "ADW"}', example: true},
                        ]
       }, {
           type:        :function,
