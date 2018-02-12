@@ -87,6 +87,37 @@ class UdfFindhotelUtils
       },
       {
           type:        :function,
+          name:        :make_adwords_keyword_click_batch_id,
+          description: "Returns a unique identifier for a batch of clicks reported by Adwords Keyword Performance Report.",
+          params:      "ad_group_id varchar(max), criteria_id bigint, device varchar(max), ad_network_type1 varchar(max), ad_network_type2 varchar(max), click_type varchar(max), slot varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "ad_group_id": str(ad_group_id),
+                "criteria_id": str(criteria_id),
+                "device": device,
+                "ad_network_type1": ad_network_type1,
+                "ad_network_type2": ad_network_type2,
+                "click_type": click_type,
+                "slot": slot}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True).encode())
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?('1', 3, 'mobile', 'a', 'b', 's', 'x')", expect: '4c4368a6e86fe648963d12b41f631479' , example: true},
+                           {query: "select ?('3', 1, 'mobile', 'a', 'b', 's', 'x')", expect: 'c30f6870a961f3382a36397fe6106091' , example: true},
+                           {query: "select ?('1', 3, 'mobile', 'b', 'a', 'h', 'y')", expect: 'ccc25ba0f417b68f24283fe9247b3c8a' , example: true},
+                           {query: "select ?('1', 3, 'mobile', 'b', 'a', 'h', 'y')", expect: 'ccc25ba0f417b68f24283fe9247b3c8a' , example: true},
+                       ]
+      },
+      {
+          type:        :function,
           name:        :make_bing_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Bing.",
           params:      "ad_group_id bigint, ad_id bigint, keyword_id bigint, device_type varchar(max), network varchar(max), bid_match_type varchar(max)",
