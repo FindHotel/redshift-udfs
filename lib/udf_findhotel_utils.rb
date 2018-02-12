@@ -178,7 +178,7 @@ class UdfFindhotelUtils
       {
         type:               :function,
         name:               :bing_click_batch_id_from_url,
-        description:        'Returns unique click id for Bing for given url',
+        description:        'Returns a unique identifier for a batch of clicks reported by Bing from provided url.',
         params:             "url varchar(max)",
         return_type:        "varchar(max)",
         body:               %~
