@@ -292,6 +292,35 @@ class UdfFindhotelUtils
             example: true
           }
         ]
+      },
+      {
+          type:        :function,
+          name:        :make_gha_click_batch_id,
+          description: "Returns a unique identifier for a batch of clicks reported by Google Hotel Ads.",
+          params:      "click_type varchar(max), date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "click_type": click_type,
+                "date_type": date_type,
+                "google_site": google_site,
+                "country": country,
+                "device": device}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True).encode())
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'mobile')", expect: '38114881b75e5f9ac8ee9f6b61253084' , example: true},
+                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'mobile')", expect: '38114881b75e5f9ac8ee9f6b61253084' , example: true},
+                           {query: "select ?('Standard', 'default', 'localuniversal', 'US', 'mobile')", expect: '3fdca5058968b781876d49b24629cb1d' , example: true},
+                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'tablet')", expect: 'bf998bb181d40222fc74b56b618830a5' , example: true},
+                       ]
       }
     ]
 end
