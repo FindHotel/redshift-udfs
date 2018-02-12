@@ -174,6 +174,88 @@ class UdfFindhotelUtils
                         {query: "select qs_to_json('http://example.com?utf8=%E2%9C%93&query=redshift')", expect: '{}' , example: false},
                         {query: "select qs_to_json('codetype%3D2%26clicktype%3DA%26hotelid%3D2718240%26campaignid%3D21933%26adgroupid%3D112633958%26targetcode%3D78%26headlineid%3D142%26desclayoutid%3D1%26desclayoutvn%3D1%26se=bing%26ad_group_id=7005466028%26ad_id=83975210798524%26device=c%26target_id=kwd-25771213359%26network=o%26match_type=b%26bid_match_type=bb%26msclkid=9665f0c1b8f51fdc3bbaa97e32a358c3%26search_query=spa%20%C3%83%C2%B6stersund%20fr%C3%83%C2%B6s%C3%83%C2%')", expect: '{"errored": "bad utf8 char detected in string"}' , example: false}
                        ]
+      },
+      {
+        type:               :function,
+        name:               :bing_click_batch_id_from_url,
+        description:        'Returns unique click id for Bing for given url',
+        params:             "url varchar(max)",
+        return_type:        "varchar(max)",
+        body:               %~
+            import hashlib
+            import json
+            from urlparse import urlparse, parse_qsl
+
+            def get_value(container, *keys):
+                for key in keys:
+                    if key in container:
+                        return container.get(key)
+                return ''
+
+            def get_query_items(url):
+                query = urlparse(url).query
+                return dict(parse_qsl(query))
+
+            def get_label_items(query_items):
+                label = get_value(query_items, 'label', 'Label')
+                return dict(parse_qsl(label))
+
+            def get_network(items):
+                nk = get_value(items, "nk", "network")
+                return "Syndicated" if nk == "s" else "Owned"
+
+            def get_device(items):
+                dv = get_value(items, "dv", "device")
+                return {
+                    "c": "Computer",
+                    "m": "Smartphone",
+                    "t": "Tablet"}.get(dv, '')
+
+            def get_keyword_id(items):
+                tid = get_value(items, "tid", "target_id")
+                if tid and tid.startswith("kwd-"):
+                    kwd = tid.split(":")[0].strip("kwd-")
+                    return kwd
+                return ''
+
+            def get_bid_match_type(items):
+                bmt = get_value(items, "bmt", "bid_match_type")
+                return {
+                    "be": "Exact",
+                    "bb": "Broad",
+                    "bp": "Phrase"}.get(bmt, '')
+            try:
+                # items come either from query itself of from label within it
+                items = get_query_items(url)
+                label_items = get_label_items(items)
+                items.update(label_items)
+
+                key = {
+                    "adgid": get_value(items, "adgid", "ad_group_id"),
+                    "adid": get_value(items, "adid", "ad_id"),
+                    "kwid": get_keyword_id(items),
+                    "dv": get_device(items),
+                    "nk": get_network(items),
+                    "bmt": get_bid_match_type(items)}
+
+                m = hashlib.md5()
+                m.update(json.dumps(key, sort_keys=True).encode())
+                return m.hexdigest()
+            except UnicodeDecodeError:
+                return ''
+        ~,
+        tests:              [
+          {
+            query: "select ?('https://it.etrip.net/Hotel/Andaz_Wall_Street.htm?label=clicktype%3DA%26se=bing%26ad_group_id=1622990580%26ad_id=3921223485%26device=m%26target_id=kwd-24794225822:loc-93%26network=o%26match_type=b%26bid_match_type=bb%26msclkid=6ca2cc3d06631184d208964a999f96f4%26search_query=andaz%20hotel%20new%20york&utm_source=bing&utm_medium=cpc&utm_campaign=Lux%20Chains%20-IT-%20LXB&utm_term=Hotel%20Andaz%20New%20York&utm_content=New%20York%20City%20-US-%20Andaz%20-4S-')",
+            expect: '75ed585a33ff0eb9083db8d17cb319f6',
+            example: true
+          },
+          {
+            query: "select ?('https://www.etrip.net/Hotel.htm?Label=clicktype%3DA%26se=bing%26ad_group_id=1345802350333982%26ad_id=84112665283409%26device=m%26target_id=kwd-84112729113201:loc-96%26network=o%26match_type=e%26bid_match_type=be%26msclkid=2ce23148454515aabd0c6b3fe22d0ce2%26search_query=trivago%26ntv=&utm_source=bing&utm_medium=cpc&utm_campaign=53%20-%20global%20-%20Geo%20-%20Mixed%20-%20Y%20-en-%20Competitors%20general%20Rest%20Languages%20-%20000000&utm_term=trivago&utm_content=Trivago%20General%20-%20E%20-%20EN')",
+            expect: '4ff7dab278fdf411b6e56febd8bb9295',
+            example: true
+          }
+        ]
       }
     ]
 end
