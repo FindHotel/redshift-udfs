@@ -254,6 +254,11 @@ class UdfFindhotelUtils
             query: "select ?('https://www.etrip.net/Hotel.htm?Label=clicktype%3DA%26se=bing%26ad_group_id=1345802350333982%26ad_id=84112665283409%26device=m%26target_id=kwd-84112729113201:loc-96%26network=o%26match_type=e%26bid_match_type=be%26msclkid=2ce23148454515aabd0c6b3fe22d0ce2%26search_query=trivago%26ntv=&utm_source=bing&utm_medium=cpc&utm_campaign=53%20-%20global%20-%20Geo%20-%20Mixed%20-%20Y%20-en-%20Competitors%20general%20Rest%20Languages%20-%20000000&utm_term=trivago&utm_content=Trivago%20General%20-%20E%20-%20EN')",
             expect: '4ff7dab278fdf411b6e56febd8bb9295',
             example: true
+          },
+          {
+            query: "select ?('https://us.etrip.net/Hotels/Search?utm_campaign=54%20-%20global%20-%20Geo%20-%20Mixed%20-%20Y%20-en-%20Competitors%20general%20USA%20-%20000000&highRate=&pageIndex=0&session_id=fh_-N9eBIvy1av2faB86wM6Lw&parentPlaceFilename=&eventSlug=&section=&checkout=2018-03-18&utm_medium=cpc&utm_content=Trivago%20General%20-%20E%20-%20EN&newSearch=false&target_id=kwd-83288081732851:loc-4104&utm_source=bing&checkin=2018-03-15&isAvailabilitySearch=true&destination=Key%20West%2C%20Florida%2C%20United%20States&placeFilename=place:Key_West&lang=en&network=o&reset=false&hotelID=&sortOrder=Ascending&pageSize=25&ntv=&search_query=hotel%20trivago&radius=0&curr=USD&se=bing&search_id=fh_-N9eBIvy1av2faB86wM6Lw%7C15179302878595355&_force_=true&match_type=e&lowRate=&Label=clicktype=A&se=bing&ad_group_id=1332608179538242&ad_id=83288027519017&device=c&target_id=kwd-83288081732851:loc-4104&network=o&match_type=e&bid_match_type=be&msclkid=3f9299015a9a15b79d0dc3789d83b675&search_query=hotel%20trivago&ntv=&isSelectedDateInAnotherMonth=false&validate=false&bid_match_type=be&device=c&shouldStartSearch=true&ad_id=83288027519017&ad_group_id=1332608179538242&msclkid=3f9299015a9a15b79d0dc3789d83b675&rooms=2&hideSearchboxSubmit=false&showCalendar=&hotelFilename=&sortField=MinRate&utm_term=hotel%20trivago&noRedirect=false&searchboxId=homeSearchBox&hotelName=')",
+            expect: 'b2401dbbe792106b30bd34820cf783e9',
+            example: true
           }
         ]
       }
