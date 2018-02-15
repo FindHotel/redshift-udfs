@@ -297,18 +297,20 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_gha_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Google Hotel Ads.",
-          params:      "click_type varchar(max), date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max)",
+          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los bigint",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
             import json
 
             key = {
-                "click_type": click_type,
                 "date_type": date_type,
                 "google_site": google_site,
                 "country": country,
-                "device": device}
+                "device": device,
+                "hotel_id": hotel_id,
+                "checkin": checkin,
+                "los": los}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
@@ -316,10 +318,10 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'mobile')", expect: '38114881b75e5f9ac8ee9f6b61253084' , example: true},
-                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'mobile')", expect: '38114881b75e5f9ac8ee9f6b61253084' , example: true},
-                           {query: "select ?('Standard', 'default', 'localuniversal', 'US', 'mobile')", expect: '3fdca5058968b781876d49b24629cb1d' , example: true},
-                           {query: "select ?('Standard', 'default', 'localuniversal', 'BR', 'tablet')", expect: 'bf998bb181d40222fc74b56b618830a5' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', 1)", expect: 'ab9fe84edaf4fc5e63a66558bd860c44' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', 1)", expect: 'ab9fe84edaf4fc5e63a66558bd860c44' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', 1)", expect: '5a6d0600ef95f27dc73cd56537071298' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'tablet', '1', '2018-01-01', 1)", expect: '8d28698442661221bd532c21dd670bf2' , example: true},
                        ]
       }
     ]
