@@ -297,7 +297,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_gha_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Google Hotel Ads.",
-          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los bigint",
+          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -318,10 +318,10 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', 1)", expect: 'ab9fe84edaf4fc5e63a66558bd860c44' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', 1)", expect: 'ab9fe84edaf4fc5e63a66558bd860c44' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', 1)", expect: '5a6d0600ef95f27dc73cd56537071298' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'BR', 'tablet', '1', '2018-01-01', 1)", expect: '8d28698442661221bd532c21dd670bf2' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1')", expect: '33f231fd65b8e99ccc2c8e380c4363fb' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1')", expect: '33f231fd65b8e99ccc2c8e380c4363fb' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', '1')", expect: '1e9bff850f22adb5ae7e952b8b02e6ad' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'tablet', '1', '2018-01-01', '1')", expect: '21dbe3d0af812fe663c1a07ae0e53fd7' , example: true},
                        ]
       }
     ]
