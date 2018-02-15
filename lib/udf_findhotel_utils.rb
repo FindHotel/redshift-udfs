@@ -186,6 +186,32 @@ class UdfFindhotelUtils
       },
       {
           type:        :function,
+          name:        :make_im_click_batch_id,
+          description: "Returns a unique identifier for a batch of clicks reported by Intent Media.",
+          params:      "custom_dta varchar(max), campaign_tracking_code varchar(max), ad_group_tracking_code varchar(max), device varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "custom_dta": custom_dta,
+                "campaign_tracking_code": campaign_tracking_code,
+                "ad_group_tracking_code": ad_group_tracking_code,
+                "device": device}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True).encode())
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?('dta31_60', 'UK_Hotels_Standard', 'CA_Low', 'DESKTOP')", expect: '000a56e2311d79072346139f96ca7dda', example: true},
+                           {query: "select ?('dta_dateless', 'CA_Hotels_Standard', 'CA_Low', 'MOBILE')", expect: 'c41b025abce5de1316e293d691985fa5', example: true},
+                       ]
+      },
+      {
+          type:        :function,
           name:        :qs_to_json,
           description: 'convert naked (without url) query string to json dict lifted from
                         https://github.com/awslabs/amazon-redshift-udfs/blob/master/scalar-udfs/f_parse_url_query_string.sql',
