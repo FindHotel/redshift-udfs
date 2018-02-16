@@ -188,7 +188,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_im_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Intent Media.",
-          params:      "custom_dta varchar(max), campaign_tracking_code varchar(max), ad_group_tracking_code varchar(max), device varchar(max)",
+          params:      "custom_dta varchar(max), campaign_tracking_code varchar(max), ad_group_tracking_code varchar(max), device varchar(max), destination varchar(max), publisher_segment varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -198,7 +198,9 @@ class UdfFindhotelUtils
                 "custom_dta": custom_dta,
                 "campaign_tracking_code": campaign_tracking_code,
                 "ad_group_tracking_code": ad_group_tracking_code,
-                "device": device}
+                "device": device,
+                "destination": destination,
+                "publisher_segment": publisher_segment}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
@@ -206,8 +208,8 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('dta31_60', 'UK_Hotels_Standard', 'CA_Low', 'DESKTOP')", expect: '000a56e2311d79072346139f96ca7dda', example: true},
-                           {query: "select ?('dta_dateless', 'CA_Hotels_Standard', 'CA_Low', 'MOBILE')", expect: 'c41b025abce5de1316e293d691985fa5', example: true},
+                           {query: "select ?('dta31_60', 'UK_Hotels_Standard', 'CA_Low', 'DESKTOP', 'Amsterdam', '3146')", expect: '98eb9c159b8463b53deb6c7b16d88208', example: true},
+                           {query: "select ?('dta_dateless', 'CA_Hotels_Standard', 'CA_Low', 'MOBILE', 'Castres', '3336')", expect: 'f0250a941177d91f4358607356581524', example: true},
                        ]
       },
       {
