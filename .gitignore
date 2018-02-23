@@ -1,3 +1,4 @@
 /.env
 /redshift-udfs.iml
 .idea/
+myRS_conf.yaml

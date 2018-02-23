@@ -188,7 +188,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_im_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Intent Media.",
-          params:      "custom_dta varchar(max), campaign_tracking_code varchar(max), ad_group_tracking_code varchar(max), device varchar(max), destination varchar(max), publisher_segment varchar(max)",
+          params:      "custom_dta varchar(max), campaign_tracking_code varchar(max), ad_group_tracking_code varchar(max), device varchar(max), city varchar(max), publisher_segment varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -199,7 +199,7 @@ class UdfFindhotelUtils
                 "campaign_tracking_code": campaign_tracking_code,
                 "ad_group_tracking_code": ad_group_tracking_code,
                 "device": device,
-                "destination": destination,
+                "city": city,
                 "publisher_segment": publisher_segment}
 
             m = hashlib.md5()
@@ -208,8 +208,8 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('dta31_60', 'UK_Hotels_Standard', 'CA_Low', 'DESKTOP', 'Amsterdam', '3146')", expect: '98eb9c159b8463b53deb6c7b16d88208', example: true},
-                           {query: "select ?('dta_dateless', 'CA_Hotels_Standard', 'CA_Low', 'MOBILE', 'Castres', '3336')", expect: 'f0250a941177d91f4358607356581524', example: true},
+                           {query: "select ?('dta31_60', 'UK_Hotels_Standard', 'CA_Low', 'DESKTOP', 'Amsterdam', '3146')", expect: 'd0e0ae31abf66929dd20ef90f59beaa4', example: true},
+                           {query: "select ?('dta_dateless', 'CA_Hotels_Standard', 'CA_Low', 'MOBILE', 'Castres', '3336')", expect: '2b04688da87934470195b01b59e92a07', example: true},
                        ]
       },
       {
@@ -317,6 +317,65 @@ class UdfFindhotelUtils
           {
             query: "select ?('https://us.etrip.net/Hotels/Search?utm_campaign=54%20-%20global%20-%20Geo%20-%20Mixed%20-%20Y%20-en-%20Competitors%20general%20USA%20-%20000000&highRate=&pageIndex=0&session_id=fh_-N9eBIvy1av2faB86wM6Lw&parentPlaceFilename=&eventSlug=&section=&checkout=2018-03-18&utm_medium=cpc&utm_content=Trivago%20General%20-%20E%20-%20EN&newSearch=false&target_id=kwd-83288081732851:loc-4104&utm_source=bing&checkin=2018-03-15&isAvailabilitySearch=true&destination=Key%20West%2C%20Florida%2C%20United%20States&placeFilename=place:Key_West&lang=en&network=o&reset=false&hotelID=&sortOrder=Ascending&pageSize=25&ntv=&search_query=hotel%20trivago&radius=0&curr=USD&se=bing&search_id=fh_-N9eBIvy1av2faB86wM6Lw%7C15179302878595355&_force_=true&match_type=e&lowRate=&Label=clicktype=A&se=bing&ad_group_id=1332608179538242&ad_id=83288027519017&device=c&target_id=kwd-83288081732851:loc-4104&network=o&match_type=e&bid_match_type=be&msclkid=3f9299015a9a15b79d0dc3789d83b675&search_query=hotel%20trivago&ntv=&isSelectedDateInAnotherMonth=false&validate=false&bid_match_type=be&device=c&shouldStartSearch=true&ad_id=83288027519017&ad_group_id=1332608179538242&msclkid=3f9299015a9a15b79d0dc3789d83b675&rooms=2&hideSearchboxSubmit=false&showCalendar=&hotelFilename=&sortField=MinRate&utm_term=hotel%20trivago&noRedirect=false&searchboxId=homeSearchBox&hotelName=')",
             expect: 'b2401dbbe792106b30bd34820cf783e9',
+            example: true
+          }
+        ]
+      },
+      {
+        type:               :function,
+        name:               :im_click_batch_id_from_url,
+        description:        'Returns a unique identifier for a batch of clicks reported by IntentMedia from provided url.',
+        params:             "url varchar(max)",
+        return_type:        "varchar(max)",
+        body:               %~
+            import hashlib
+            import json
+            from urlparse import urlparse, parse_qsl
+
+            def get_value(container, *keys):
+                for key in keys:
+                    if key in container:
+                        return container.get(key)
+                return ''
+
+            def get_query_items(url):
+                query = urlparse(url).query
+                return dict(parse_qsl(query))
+
+            def get_label_items(query_items):
+                label = get_value(query_items, 'label', 'Label')
+                return dict(parse_qsl(label))
+
+            try:
+                # items come either from query itself of from label within it
+                items = get_query_items(url)
+                label_items = get_label_items(items)
+                items.update(label_items)
+
+                key = {
+                    "custom_dta": get_value(items, "dta"),
+                    "campaign_tracking_code": get_value(items, "camp"),
+                    "ad_group_tracking_code": get_value(items, "adgrp"),
+                    "device": get_value(items, "dev").upper(),
+                    "city": get_value(items, "des"),
+                    "publisher_segment": get_value(items, "pub")}
+
+
+                m = hashlib.md5()
+                m.update(json.dumps(key, sort_keys=True).encode())
+                return m.hexdigest()
+            except UnicodeDecodeError:
+                return ''
+        ~,
+        tests:              [
+          {
+            query: "select ?('https://wwww.findhotel.net/Hotels/Search?checkout=2017-11-10&checkin=2017-11-09&placeFilename=place:London&lang=en&curr=EUR&rooms=2&utm_source=im&label=src%3Dim%26camp%3DUK_Hotels_Standard%26mkt%3DCA%26adgrp%3DCA_Low%26dta%3Ddta31_60%26des%3DAmsterdam%26pub%3D3146%26dev%3DDesktop')",
+            expect: 'd0e0ae31abf66929dd20ef90f59beaa4',
+            example: true
+          },
+          {
+            query: "select ?('https://wwww.findhotel.net/Hotels/Search?checkout=2017-11-10&checkin=2017-11-09&placeFilename=place:London&lang=en&curr=EUR&rooms=2&utm_source=im&label=src%3Dim%26camp%3DCA_Hotels_Standard%26mkt%3DCA%26adgrp%3DCA_Low%26dta%3Ddta_dateless%26des%3DCastres%26pub%3D3336%26dev%3DMobile')",
+            expect: '2b04688da87934470195b01b59e92a07',
             example: true
           }
         ]
