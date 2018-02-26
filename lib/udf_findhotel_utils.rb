@@ -368,20 +368,27 @@ class UdfFindhotelUtils
                 query = urlparse(url).query
                 return dict(parse_qsl(query))
 
-            def get_label_params(items):
-                label = items.get('label', items.get('Label', ''))
+            def get_value(container, *keys):
+                for key in keys:
+                    if key in container:
+                        return container.get(key)
+                return ''
+
+            def get_label_items(query_items):
+                label = get_value(query_items, 'label', 'Label')
                 return dict(parse_qsl(label))
 
-            params = get_label_params(get_query_items(url))
+            items = get_query_items(url)
+            label_items = get_label_items(items)
 
             key = {
-                "date_type": params.get('datype'),
-                "google_site": params.get('gsite'),
-                "country": params.get('ucountry'),
-                "device": params.get('udevice'),
-                "hotel_id": params.get('hotel'),
-                "checkin": "%s-%s-%s" % (params.get('year', ''), params.get('month', ''), params.get('day', '')),
-                "los": params.get('los')}
+                "date_type": label_items.get('datype'),
+                "google_site": label_items.get('gsite'),
+                "country": label_items.get('ucountry'),
+                "device": label_items.get('udevice'),
+                "hotel_id": label_items.get('hotel'),
+                "checkin": "%s-%s-%s" % (label_items.get('year', ''), label_items.get('month', ''), label_items.get('day', '')),
+                "los": label_items.get('los')}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
