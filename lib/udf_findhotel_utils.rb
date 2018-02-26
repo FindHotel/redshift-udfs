@@ -405,6 +405,7 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
+                           {query: "select ?('default', 'mapresults', 'GB', 'desktop', '1199802', '2018-03-04', '1')", expect: 'c5937b8422c8b1a5f7d3bed0d4abcdb9' , example: true},
                            {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1')", expect: '33f231fd65b8e99ccc2c8e380c4363fb' , example: true},
                            {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1')", expect: '33f231fd65b8e99ccc2c8e380c4363fb' , example: true},
                            {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', '1')", expect: '1e9bff850f22adb5ae7e952b8b02e6ad' , example: true},
@@ -426,19 +427,27 @@ class UdfFindhotelUtils
                 query = urlparse(url).query
                 return dict(parse_qsl(query))
 
-            def get_label_params(items):
-                return dict(parse_qsl(items.get('label', '')))
+            def get_value(container, *keys):
+                for key in keys:
+                    if key in container:
+                        return container.get(key)
+                return ''
 
-            params = get_label_params(get_query_items(url))
+            def get_label_items(query_items):
+                label = get_value(query_items, 'label', 'Label')
+                return dict(parse_qsl(label))
+
+            items = get_query_items(url)
+            label_items = get_label_items(items)
 
             key = {
-                "date_type": params.get('datype'),
-                "google_site": params.get('gsite'),
-                "country": params.get('ucountry'),
-                "device": params.get('udevice'),
-                "hotel_id": params.get('hotel'),
-                "checkin": "%s-%s-%s" % (params.get('year', ''), params.get('month', ''), params.get('day', '')),
-                "los": params.get('los')}
+                "date_type": label_items.get('datype'),
+                "google_site": label_items.get('gsite'),
+                "country": label_items.get('ucountry'),
+                "device": label_items.get('udevice'),
+                "hotel_id": label_items.get('hotel'),
+                "checkin": "%s-%s-%s" % (label_items.get('year', ''), label_items.get('month', ''), label_items.get('day', '')),
+                "los": label_items.get('los')}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
@@ -446,6 +455,8 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
+                           {query: "select ?('https://www.findhotel.net/Place/Manchester_City_Centre.htm?Label=src%3Dgha%26cltype%3Dhotel%26datype%3Ddefault%26gsite%3Dmapresults%26ucountry%3DGB%26udevice%3Ddesktop%26hotel%3D1199802%26day%3D04%26month%3D03%26year%3D2018%26los%3D1&checkin=2018-03-04&checkout=2018-03-05&hotelID=1199802&persist_hotel_id=true&rooms=2')", expect: 'c5937b8422c8b1a5f7d3bed0d4abcdb9' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&Label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: '9568cc3e30eb740343f8d9762343ca8b' , example: true},
                            {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: '9568cc3e30eb740343f8d9762343ca8b' , example: true},
                            {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017%26los%3D3')", expect: '187636d40672026ec80c7b23bd2eb4c5' , example: true},
                            {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017')", expect: 'a271aace088cd85d22dd71702dacb037' , example: true},
