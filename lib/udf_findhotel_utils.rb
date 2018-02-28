@@ -214,6 +214,32 @@ class UdfFindhotelUtils
       },
       {
           type:        :function,
+          name:        :make_clicktripz_click_batch_id,
+          description: "Returns a unique identifier for a batch of clicks reported by Clicktripz.",
+          params:      "campaign_id varchar(max), ad_group_id varchar(max), hotel_city_name varchar(max), device varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+            import hashlib
+            import json
+
+            key = {
+                "campaign_id": campaign_id,
+                "ad_group_id": ad_group_id,
+                "destination": hotel_city_name,
+                "device": device}
+
+            m = hashlib.md5()
+            m.update(json.dumps(key, sort_keys=True).encode())
+            return m.hexdigest()
+
+          ~,
+          tests:       [
+                           {query: "select ?('21311', '632', 'London', 'T')", expect: 'abe64d52ff16d84a1d15b3c4517aa49e', example: true},
+                           {query: "select ?('21320', '2708m', 'Puducherry', 'M')", expect: 'a367e30ca4d3ffec0c38f62ca018160c', example: true},
+                       ]
+      },
+      {
+          type:        :function,
           name:        :qs_to_json,
           description: 'convert naked (without url) query string to json dict lifted from
                         https://github.com/awslabs/amazon-redshift-udfs/blob/master/scalar-udfs/f_parse_url_query_string.sql',
@@ -376,6 +402,67 @@ class UdfFindhotelUtils
           {
             query: "select ?('https://wwww.findhotel.net/Hotels/Search?checkout=2017-11-10&checkin=2017-11-09&placeFilename=place:London&lang=en&curr=EUR&rooms=2&utm_source=im&label=src%3Dim%26camp%3DCA_Hotels_Standard%26mkt%3DCA%26adgrp%3DCA_Low%26dta%3Ddta_dateless%26des%3DCastres%26pub%3D3336%26dev%3DMobile')",
             expect: '2b04688da87934470195b01b59e92a07',
+            example: true
+          }
+        ]
+      },
+      {
+        type:               :function,
+        name:               :clicktripz_click_batch_id_from_url,
+        description:        'Returns a unique identifier for a batch of clicks reported by Clicktripz from provided url.',
+        params:             "url varchar(max)",
+        return_type:        "varchar(max)",
+        body:               %~
+            import hashlib
+            import json
+            from urlparse import urlparse, parse_qsl
+
+            def get_value(container, *keys):
+                for key in keys:
+                    if key in container:
+                        return container.get(key)
+                return ''
+
+            def get_query_items(url):
+                query = urlparse(url).query
+                return dict(parse_qsl(query))
+
+            def get_label_items(query_items):
+                label = get_value(query_items, 'label', 'Label')
+                return dict(parse_qsl(label))
+
+            def map_device(device):
+                return {"Mobile": "M",
+                        "Desktop": "D",
+                        "Tablet": "T"}.get(device)
+
+            try:
+                # items come either from query itself of from label within it
+                items = get_query_items(url)
+                label_items = get_label_items(items)
+                items.update(label_items)
+
+                key = {
+                    "campaign_id": get_value(items, "camp"),
+                    "ad_group_id": get_value(items, "adgrp"),
+                    "destination": get_value(items, "des"),
+                    "device": map_device(get_value(items, "dev"))}
+
+                m = hashlib.md5()
+                m.update(json.dumps(key, sort_keys=True).encode())
+                return m.hexdigest()
+            except UnicodeDecodeError:
+                return ''
+        ~,
+        tests:              [
+          {
+            query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21311%26mkt%3DGB%26adgrp%3D632%26des%3DLondon%26dev%3DTablet')",
+            expect: 'abe64d52ff16d84a1d15b3c4517aa49e',
+            example: true
+          },
+          {
+            query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21320%26mkt%3DGB%26adgrp%3D2708m%26des%3DPuducherry%26dev%3DMobile')",
+            expect: 'a367e30ca4d3ffec0c38f62ca018160c',
             example: true
           }
         ]
