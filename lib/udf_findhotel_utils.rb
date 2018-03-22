@@ -549,6 +549,32 @@ class UdfFindhotelUtils
                            {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017')", expect: 'a271aace088cd85d22dd71702dacb037' , example: true},
                            {query: "select ?('https://www.findhotel.net/?utm_medium=cpc')", expect: 'd3f701308cedc0a7684b2b3039d4f0bc' , example: true},
                        ]
+      },
+      {
+          type:        :function,
+          name:        :get_ad_group_meta,
+          description: "Returns JSON string version of the URL parameters in ad group name.",
+          params:      "ad_group_name varchar(max)",
+          return_type: "varchar(max)",
+          body:        %~
+
+            from urlparse import parse_qs
+            import json
+
+            input = parse_qs(ad_group_name)
+            output = {}
+                 
+            for parameter, value in input.items():
+              if value:
+                output[parameter] = value[0]
+            return json.dumps(output, sort_keys=True)
+
+          ~,
+          tests:       [
+                           {query: "select ?('CC=ES&EID=216&EN=Mobile World Congress, Barcelona, 2018&LID=154262&VID=198339&CT=event_name&LN=en&MT=B&AG=175320874-00000')", 
+                            expect: '{"AG": "175320874-00000", "CC": "ES", "CT": "event_name", "EID": "216", "EN": "Mobile World Congress, Barcelona, 2018", "LID": "154262", "LN": "en", "MT": "B", "VID": "198339"}', 
+                            example: true}
+                       ]
       }
     ]
 end
