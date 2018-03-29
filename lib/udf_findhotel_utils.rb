@@ -225,7 +225,7 @@ class UdfFindhotelUtils
             key = {
                 "campaign_id": campaign_id,
                 "ad_group_id": ad_group_id,
-                "destination": hotel_city_name,
+                "destination": hotel_city_name.lower(),
                 "device": device}
 
             m = hashlib.md5()
@@ -234,8 +234,8 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('21311', '632', 'London', 'T')", expect: 'abe64d52ff16d84a1d15b3c4517aa49e', example: true},
-                           {query: "select ?('21320', '2708m', 'Puducherry', 'M')", expect: 'a367e30ca4d3ffec0c38f62ca018160c', example: true},
+                           {query: "select ?('21311', '632', 'London', 'T')", expect: '492bd0e8488cff653d706ba11a32fe06', example: true},
+                           {query: "select ?('21320', '2708m', 'Puducherry', 'M')", expect: 'c52a6b9a02a5f1b8e6eeb8a65fde82ca', example: true},
                        ]
       },
       {
@@ -445,7 +445,7 @@ class UdfFindhotelUtils
                 key = {
                     "campaign_id": get_value(items, "camp"),
                     "ad_group_id": get_value(items, "adgrp"),
-                    "destination": get_value(items, "des"),
+                    "destination": get_value(items, "des").lower(),
                     "device": map_device(get_value(items, "dev"))}
 
                 m = hashlib.md5()
@@ -457,12 +457,12 @@ class UdfFindhotelUtils
         tests:              [
           {
             query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21311%26mkt%3DGB%26adgrp%3D632%26des%3DLondon%26dev%3DTablet')",
-            expect: 'abe64d52ff16d84a1d15b3c4517aa49e',
+            expect: '492bd0e8488cff653d706ba11a32fe06',
             example: true
           },
           {
             query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21320%26mkt%3DGB%26adgrp%3D2708m%26des%3DPuducherry%26dev%3DMobile')",
-            expect: 'a367e30ca4d3ffec0c38f62ca018160c',
+            expect: 'c52a6b9a02a5f1b8e6eeb8a65fde82ca',
             example: true
           }
         ]
