@@ -222,10 +222,14 @@ class UdfFindhotelUtils
             import hashlib
             import json
 
+            def hotel_city_name_lcase(hcn):
+                if hcn != None:
+                 return(hcn.lower())
+
             key = {
                 "campaign_id": campaign_id,
                 "ad_group_id": ad_group_id,
-                "destination": hotel_city_name.lower(),
+                "destination": hotel_city_name_lcase(hotel_city_name),
                 "device": device}
 
             m = hashlib.md5()
@@ -436,6 +440,10 @@ class UdfFindhotelUtils
                         "Desktop": "D",
                         "Tablet": "T"}.get(device)
 
+            def destination_lcase(des):
+                if des != None:
+                 return(des.lower())
+
             try:
                 # items come either from query itself of from label within it
                 items = get_query_items(url)
@@ -445,7 +453,7 @@ class UdfFindhotelUtils
                 key = {
                     "campaign_id": get_value(items, "camp"),
                     "ad_group_id": get_value(items, "adgrp"),
-                    "destination": get_value(items, "des").lower(),
+                    "destination": destination_lcase(get_value(items, "des")),
                     "device": map_device(get_value(items, "dev"))}
 
                 m = hashlib.md5()
