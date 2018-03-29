@@ -225,7 +225,7 @@ class UdfFindhotelUtils
             key = {
                 "campaign_id": campaign_id,
                 "ad_group_id": ad_group_id,
-                "destination": hotel_city_name,
+                "destination": hotel_city_name.lower(),
                 "device": device}
 
             m = hashlib.md5()
@@ -445,7 +445,7 @@ class UdfFindhotelUtils
                 key = {
                     "campaign_id": get_value(items, "camp"),
                     "ad_group_id": get_value(items, "adgrp"),
-                    "destination": get_value(items, "des"),
+                    "destination": get_value(items, "des").lower(),
                     "device": map_device(get_value(items, "dev"))}
 
                 m = hashlib.md5()
