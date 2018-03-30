@@ -225,6 +225,8 @@ class UdfFindhotelUtils
             def hotel_city_name_lcase(hcn):
                 if hcn != None:
                  return(hcn.lower())
+                else:
+                  return('')
 
             key = {
                 "campaign_id": campaign_id,
@@ -443,6 +445,8 @@ class UdfFindhotelUtils
             def destination_lcase(des):
                 if des != None:
                  return(des.lower())
+                else:
+                  return('')
 
             try:
                 # items come either from query itself of from label within it
