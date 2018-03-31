@@ -216,32 +216,31 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_clicktripz_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Clicktripz.",
-          params:      "campaign_id varchar(max), ad_group_id varchar(max), hotel_city_name varchar(max), device varchar(max)",
+          params:      "campaign_id varchar(max), ad_group_id varchar(max), ad_id varchar(max), device varchar(max), hotel_name varchar(max), place_name varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
             import json
 
-            def hotel_city_name_lcase(hcn):
-                if hcn != None:
-                 return(hcn.lower())
-                else:
-                  return('')
-
             key = {
-                "campaign_id": campaign_id,
-                "ad_group_id": ad_group_id,
-                "destination": hotel_city_name_lcase(hotel_city_name),
-                "device": device}
+                "campaign_id": (campaign_id or '') and campaign_id.lower(),
+                "ad_group_id": (ad_group_id or '') and ad_group_id.lower(),
+                "ad_id": (ad_id or '') and ad_id.lower(),
+                "device": (device or '') and device.lower(),
+                "hotel_name": (hotel_name or '') and hotel_name.lower(),
+                "place_name": (place_name or '') and place_name.lower()}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
             return m.hexdigest()
 
           ~,
-          tests:       [
-                           {query: "select ?('21311', '632', 'London', 'T')", expect: '492bd0e8488cff653d706ba11a32fe06', example: true},
-                           {query: "select ?('21320', '2708m', 'Puducherry', 'M')", expect: 'c52a6b9a02a5f1b8e6eeb8a65fde82ca', example: true},
+          tests:       [{query: "select ?('a', 'b', 'c', 'd', 'e', 'f')", expect: '3b9e20bccf0e62132ef961f519d8613a', example: true},
+                        {query: "select ?('A', 'B', 'C', 'D', 'E', 'F')", expect: '3b9e20bccf0e62132ef961f519d8613a', example: true},
+                        {query: "select ?('A', null, 'C', 'D', 'E', 'F')", expect: '32ac5f2f379d1d2e2ed4c89d2367b42f', example: true},
+                        {query: "select ?('A', '', 'C', 'D', 'E', 'F')", expect: '32ac5f2f379d1d2e2ed4c89d2367b42f', example: true},
+                        {query: "select ?(null, null, null, null, null, null)", expect: 'c1809afc608b5c3032f8a80ed63a5fa0', example: true},
+                        {query: "select ?('', '', '', '', '', '')", expect: 'c1809afc608b5c3032f8a80ed63a5fa0', example: true},
                        ]
       },
       {
