@@ -216,7 +216,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_clicktripz_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Clicktripz.",
-          params:      "campaign_id varchar(max), ad_group_id varchar(max), ad_id varchar(max), device varchar(max), hotel_name varchar(max), place_name varchar(max)",
+          params:      "campaign_id varchar(max), ad_group_id varchar(max), ad_id varchar(max), device varchar(max), hotel_id varchar(max), place_name varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -227,7 +227,7 @@ class UdfFindhotelUtils
                 "ad_group_id": (ad_group_id or '') and ad_group_id.lower(),
                 "ad_id": (ad_id or '') and ad_id.lower(),
                 "device": (device or '') and device.lower(),
-                "hotel_name": (hotel_name or '') and hotel_name.lower(),
+                "hotel_id": (hotel_id or ''),
                 "place_name": (place_name or '') and place_name.lower()}
 
             m = hashlib.md5()
@@ -235,14 +235,14 @@ class UdfFindhotelUtils
             return m.hexdigest()
 
           ~,
-          tests:       [{query: "select ?('a', 'b', 'c', 'd', 'e', 'f')", expect: '3b9e20bccf0e62132ef961f519d8613a', example: true},
-                        {query: "select ?('A', 'B', 'C', 'D', 'E', 'F')", expect: '3b9e20bccf0e62132ef961f519d8613a', example: true},
-                        {query: "select ?('A', null, 'C', 'D', 'E', 'F')", expect: '32ac5f2f379d1d2e2ed4c89d2367b42f', example: true},
-                        {query: "select ?('A', '', 'C', 'D', 'E', 'F')", expect: '32ac5f2f379d1d2e2ed4c89d2367b42f', example: true},
-                        {query: "select ?(null, null, null, null, null, null)", expect: 'c1809afc608b5c3032f8a80ed63a5fa0', example: true},
-                        {query: "select ?('', '', '', '', '', '')", expect: 'c1809afc608b5c3032f8a80ed63a5fa0', example: true},
-                        {query: "select ?('21311', '632', '', 't', 'Travelodge_London_Kings_Cross_Royal_Scot', 'london')", expect: '514e5fd4736cf56d895b4152da541a1c', example: true},
-                        {query: "select ?('21311', '632', '', 'm', 'Travelodge_London_Kings_Cross_Royal_Scot', 'london')", expect: '666d7e54e4067756a8a3cca99f4e0cc4', example: true},
+          tests:       [{query: "select ?('a', 'b', 'c', 'd', 'e', 'f')", expect: '7cdb3361fc808aba563561359fe9089b', example: true},
+                        {query: "select ?('A', 'B', 'C', 'D', 'E', 'F')", expect: 'b05b30a76d7ff359a6c5d496316479e1', example: true},
+                        {query: "select ?('A', null, 'C', 'D', 'E', 'F')", expect: '7399956570ffb8c73a1e43808948525b', example: true},
+                        {query: "select ?('A', '', 'C', 'D', 'E', 'F')", expect: '7399956570ffb8c73a1e43808948525b', example: true},
+                        {query: "select ?(null, null, null, null, null, null)", expect: 'f2f3d291e9be20ebdc89fd1e84008975', example: true},
+                        {query: "select ?('', '', '', '', '', '')", expect: 'f2f3d291e9be20ebdc89fd1e84008975', example: true},
+                        {query: "select ?('21311', '632', '', 't', 'Travelodge_London_Kings_Cross_Royal_Scot', 'london')", expect: '345ebc241b2526f3c6bedebb281be314', example: true},
+                        {query: "select ?('21311', '632', '', 'm', 'Travelodge_London_Kings_Cross_Royal_Scot', 'london')", expect: 'fa0908be1d39218372d5b1c266338e0a', example: true},
                        ]
       },
       {
@@ -417,7 +417,7 @@ class UdfFindhotelUtils
         type:               :function,
         name:               :clicktripz_click_batch_id_from_url,
         description:        'Returns a unique identifier for a batch of clicks reported by Clicktripz from provided url.',
-        params:             "url varchar(max), hotel_name varchar(max)",
+        params:             "url varchar(max), hotel_id varchar(max)",
         return_type:        "varchar(max)",
         body:               %~
             import hashlib
@@ -460,7 +460,7 @@ class UdfFindhotelUtils
                     "ad_group_id": get_value(items, "adgrp").lower(),
                     "ad_id": get_value(items, "ad").lower(),
                     "device": map_device(get_value(items, "dev")),
-                    "hotel_name": (hotel_name or '').lower() or get_value(items, "hotelFilename").lower(),
+                    "hotel_id": hotel_id or get_value(items, "hotelID"),
                     "place_name": get_value(items, "des").lower()}
 
                 m = hashlib.md5()
@@ -472,12 +472,12 @@ class UdfFindhotelUtils
         tests:  [
           {
             query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21311%26mkt%3DGB%26adgrp%3D632%26des%3DLondon%26dev%3DTablet', 'Travelodge_London_Kings_Cross_Royal_Scot')",
-            expect: '514e5fd4736cf56d895b4152da541a1c',
+            expect: '345ebc241b2526f3c6bedebb281be314',
             example: true
           },
           {
             query: "select ?('https://www.findhotel.net/Hotel/Search?checkout=2018-01-21&checkin=2018-01-20&hotelFilename=Travelodge_London_Kings_Cross_Royal_Scot&lang=EN&curr=GBP&rooms=2&pubname=CT&utm_source=CT&label=src%3DCT%26camp%3D21311%26mkt%3DGB%26adgrp%3D632%26des%3DLondon%26dev%3DMobile', 'Travelodge_London_Kings_Cross_Royal_Scot' )",
-            expect: '666d7e54e4067756a8a3cca99f4e0cc4',
+            expect: 'fa0908be1d39218372d5b1c266338e0a',
             example: true
           }
         ]
