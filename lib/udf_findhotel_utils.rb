@@ -194,6 +194,9 @@ class UdfFindhotelUtils
             import hashlib
             import json
 
+            if device == "TABLET":
+                device = "DESKTOP"
+
             key = {
                 "custom_dta": custom_dta,
                 "campaign_tracking_code": campaign_tracking_code,
