@@ -453,8 +453,8 @@ class UdfFindhotelUtils
                 items.update(label_items)
 
                 key = {
-                  "campaign_id": get_value(items, "camp").lower(),
-                  "ad_group_id": get_value(items, "adgrp").lower(),
+                  "campaign_id": (get_value(items, "camp") or '').lower(),
+                  "ad_group_id": (get_value(items, "adgrp") or '').lower(),
                   "ad_id": (get_value(items, "ad") or '').lower(),
                   "device": (map_device(get_value(items, "dev")) or '').lower(),
                   "hotel_id": (hotel_id or get_value(items, "hotelID") or '').lower(),
