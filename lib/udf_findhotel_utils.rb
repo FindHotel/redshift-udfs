@@ -483,7 +483,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_gha_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Google Hotel Ads.",
-          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los varchar(max), cid integer",
+          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los varchar(max), cid bigint",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
