@@ -483,7 +483,7 @@ class UdfFindhotelUtils
           type:        :function,
           name:        :make_gha_click_batch_id,
           description: "Returns a unique identifier for a batch of clicks reported by Google Hotel Ads.",
-          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los varchar(max), cid bigint",
+          params:      "date_type varchar(max), google_site varchar(max), country varchar(max), device varchar(max), hotel_id varchar(max), checkin varchar(max), los varchar(max), cid varchar(max)",
           return_type: "varchar(max)",
           body:        %~
             import hashlib
@@ -505,11 +505,11 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('default', 'mapresults', 'GB', 'desktop', '1199802', '2018-03-04', '1', 123)", expect: '3ee0344f581d8d53653777ca57bc145f' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1', 456)", expect: 'ad6bcae54f2df074fd6da7394f34d189' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1', 123)", expect: '50b11b5a616403e1df5a835da12d1d0f' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', '1', 456)", expect: '83527b36a1b6f51157a9e997dff7b747' , example: true},
-                           {query: "select ?('default', 'localuniversal', 'BR', 'tablet', '1', '2018-01-01', '1', 123)", expect: '4e4b6583a9d006ef57bb977729673d11' , example: true},
+                           {query: "select ?('default', 'mapresults', 'GB', 'desktop', '1199802', '2018-03-04', '1', '123')", expect: '4b1bbe59408cced78a1c7b7b8672c8ed' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1', '456')", expect: '8455de03cf1058d72bc4c21a1d9a7756' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'mobile', '1', '2018-01-01', '1', '123')", expect: '8b08bb165ea1d0553b1d018ab3ae0eb4' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'US', 'mobile', '1', '2018-01-01', '1', '456')", expect: '6f6b011f7ff82bdfd474c23376711b79' , example: true},
+                           {query: "select ?('default', 'localuniversal', 'BR', 'tablet', '1', '2018-01-01', '1', '123')", expect: '521038947b4375ea4b6899b18f3d54ae' , example: true},
                        ]
       },
       {
@@ -549,7 +549,7 @@ class UdfFindhotelUtils
                 "hotel_id": label_items.get('hotel'),
                 "checkin": "%s-%s-%s" % (label_items.get('year', ''), label_items.get('month', ''), label_items.get('day', '')),
                 "los": label_items.get('los'),
-                "cid": label_items.get('cid', 1587851245)}
+                "cid": label_items.get('cid', '1587851245')}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
@@ -557,12 +557,12 @@ class UdfFindhotelUtils
 
           ~,
           tests:       [
-                           {query: "select ?('https://www.findhotel.net/Place/Manchester_City_Centre.htm?Label=src%3Dgha%26cltype%3Dhotel%26datype%3Ddefault%26gsite%3Dmapresults%26ucountry%3DGB%26udevice%3Ddesktop%26hotel%3D1199802%26day%3D04%26month%3D03%26year%3D2018%26los%3D1&checkin=2018-03-04&checkout=2018-03-05&hotelID=1199802&persist_hotel_id=true&rooms=2')", expect: '7e68157735d1d742a5847ad31ac5e9cf' , example: true},
-                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&Label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: 'ace7a95f1aa56207472a5ffc5725926d' , example: true},
-                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: 'ace7a95f1aa56207472a5ffc5725926d' , example: true},
-                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017%26los%3D3')", expect: '70dcec0d323257b3d5f0dcd2896b5945' , example: true},
-                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017')", expect: 'a7b93cf0ae020981625787c17656bd55' , example: true},
-                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc')", expect: '9f0b78fa754f6f35f482985411288612' , example: true},
+                           {query: "select ?('https://www.findhotel.net/Place/Manchester_City_Centre.htm?Label=src%3Dgha%26cltype%3Dhotel%26datype%3Ddefault%26gsite%3Dmapresults%26ucountry%3DGB%26udevice%3Ddesktop%26hotel%3D1199802%26day%3D04%26month%3D03%26year%3D2018%26los%3D1&checkin=2018-03-04&checkout=2018-03-05&hotelID=1199802&persist_hotel_id=true&rooms=2')", expect: '0a7ea4f85bc7c23b9b737c0ebc5b71df' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&Label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: 'de7e4741f6b7b48ffcb2b473393082f6' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2018%26los%3D3')", expect: 'de7e4741f6b7b48ffcb2b473393082f6' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017%26los%3D3')", expect: '5c4ca0e4ba65d9119a9d9ad720e735f0' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc&label=src%3Dgha%26cltype%3Dhotel%26datype%3Dselected%26gsite%3Dlocaluniversal%26ucountry%3DUS%26udevice%3Dmobile%26hotel%3D1510016%26day%3D16%26month%3D02%26year%3D2017')", expect: '4a58e77213a74a0d13ff4a91e2bb7973' , example: true},
+                           {query: "select ?('https://www.findhotel.net/?utm_medium=cpc')", expect: '7878fe32be46a723c989500e5a58acc9' , example: true},
                        ]
       },
       {
