@@ -497,7 +497,7 @@ class UdfFindhotelUtils
                 "hotel_id": hotel_id,
                 "checkin": checkin,
                 "los": los,
-                "cid": cid}
+                "cid": cid or '1587851245'}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
@@ -549,7 +549,7 @@ class UdfFindhotelUtils
                 "hotel_id": label_items.get('hotel'),
                 "checkin": "%s-%s-%s" % (label_items.get('year', ''), label_items.get('month', ''), label_items.get('day', '')),
                 "los": label_items.get('los'),
-                "cid": label_items.get('cid', '1587851245')}
+                "cid": label_items.get('cid') or '1587851245'}
 
             m = hashlib.md5()
             m.update(json.dumps(key, sort_keys=True).encode())
