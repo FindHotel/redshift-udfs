@@ -104,23 +104,29 @@ class UdfStats
               mode = (n+a-1.)/(N+a+b-2.)
               n_sigma = numpy.ceil(norm.ppf( (1+pct)/2. ))+1
               max_p = mode + n_sigma * stdev
-              if max_p > 1:
-                max_p = 1.
-              min_p = mode - n_sigma * stdev
-              if min_p > 1:
-                min_p = 1.
-              p_range = numpy.linspace(min_p, max_p, n_pbins+1)
-              if mode > 0.5:
-                  sf = rv.sf(p_range)
-                  pmf = sf[:-1] - sf[1:]
+              
+              # apply the rule of three: https://en.wikipedia.org/wiki/Rule_of_three_(statistics)
+              if n == 0:
+                return 3.00/N
+              # if successes are not equal 0, proceed with upper boundary calculation
               else:
-                  cdf = rv.cdf(p_range)
-                  pmf = cdf[1:] - cdf[:-1]
-              # find the upper and lower bounds of the interval 
-              sorted_idxs = numpy.argsort( pmf )[::-1]
-              cumsum = numpy.cumsum( numpy.sort(pmf)[::-1] )
-              j = numpy.argmin( numpy.abs(cumsum - pct) )
-              return p_range[ (sorted_idxs[:j+1]).max()+1 ]
+                if max_p > 1:
+                  max_p = 1.
+                min_p = mode - n_sigma * stdev
+                if min_p > 1:
+                  min_p = 1.
+                p_range = numpy.linspace(min_p, max_p, n_pbins+1)
+                if mode > 0.5:
+                    sf = rv.sf(p_range)
+                    pmf = sf[:-1] - sf[1:]
+                else:
+                    cdf = rv.cdf(p_range)
+                    pmf = cdf[1:] - cdf[:-1]
+                # find the upper and lower bounds of the interval 
+                sorted_idxs = numpy.argsort( pmf )[::-1]
+                cumsum = numpy.cumsum( numpy.sort(pmf)[::-1] )
+                j = numpy.argmin( numpy.abs(cumsum - pct) )
+                return p_range[ (sorted_idxs[:j+1]).max()+1 ]
 
           ~,
           tests: [
