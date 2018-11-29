@@ -123,7 +123,7 @@ class UdfStringUtils
                   return '{"errored": "bad utf8 char detected in string"}'
               else:
                 return pval
-            except KeyError:
+            except (KeyError, ValueError):
               return None
           ~,
           tests:       [
