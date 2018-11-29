@@ -135,6 +135,7 @@ class UdfStringUtils
                            {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user')", expect: '&SE=ADW&ntw=g', example: true},
                            {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 'f')", expect: '&SE=ADW&ntw=g', example: true},
                            {query: "select ?('https://gmail.com/mail.php?user=%26SE=ADW%26ntw=g&account=work', 'user', 't')", expect: '{"SE": "ADW", "ntw": "g"}', example: true},
+                           {query: "select ?('https://]', 'user', 't')", expect: nil, example: true},
                        ]
       }, {
           type:        :function,
